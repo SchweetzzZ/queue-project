@@ -15,7 +15,8 @@ export class AuthController {
     @Post("login")
     async login(@ZodBody(loginSchema) data: LoginDto,
         @Res({ passthrough: true }) res: express.Response) {
-        const { access_token } = await this.auth.login(data)
+        const user = await this.auth.validateUser(data)
+        const { access_token } = await this.auth.login(user)
         res.cookie("access_token", access_token, {
             httpOnly: true,
             secure: true,
