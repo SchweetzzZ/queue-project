@@ -15,10 +15,18 @@ enum Plan {
   FREE
   PRO
 }
-enum Role {
-  SUPER_ADMIN
+enum AgentRole {
   ADMIN
   AGENT
+}
+enum AgentStatus {
+  ONLINE
+  OFFLINE
+  BUSY
+}
+enum Role {
+  SUPER_ADMIN
+  USER
 }
 model User {
   id String @id @default(uuid())
@@ -26,10 +34,11 @@ model User {
   email String @unique
   emailVerified Boolean @default(false)
   password String
-  role Role @default(AGENT)
+  role Role @default(USER)
   phone String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  agents Agent[]    
 }
 model Company {
   id String @id @default(uuid())
@@ -39,6 +48,7 @@ model Company {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   settings CompanySettings?
+  agents Agent[]
   
 }
 model CompanySettings {
@@ -47,7 +57,23 @@ model CompanySettings {
   customerLabel String
   agentLabel String
   queueLabel String
-  company Company @relation(fields: [companyId], references: [id])
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+model Agent {
+  id String @id @default(uuid())
+  companyId String
+  userId String
+  role AgentRole @default(AGENT)
+  status AgentStatus @default(OFFLINE)
+
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([companyId, userId])
+  @@unique([companyId, id])
 }

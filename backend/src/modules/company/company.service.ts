@@ -10,6 +10,7 @@ export class CompanyService {
             const createCompany = await this.prisma.company.create({
                 data: {
                     name: data.name,
+                    plan: data.plan,
                     isActive: data.isActive,
 
                     settings: {
@@ -51,21 +52,22 @@ export class CompanyService {
         }
     }
     async delete(id: string, superAdminId: string) {
-        try {
-            const verifyCompany = await this.prisma.company.findUnique({
-                where: { id }
-            })
-            if (!verifyCompany) {
-                throw new Error("Company not found")
-            }
-            const deleteCompany = await this.prisma.company.delete({
-                where: { id }
-            })
-            return deleteCompany
-        } catch (error) {
-            throw new ConflictException("Company already exists")
+
+        const verifyCompany = await this.prisma.company.findUnique({
+            where: { id }
+        })
+        console.log("passa aqui?", verifyCompany)
+        if (!verifyCompany) {
+            throw new Error("Company not found")
         }
+        console.log("passa aqui? v1.5")
+        const deleteCompany = await this.prisma.company.delete({
+            where: { id }
+        })
+        console.log("passa aqui? v2", deleteCompany)
+        return deleteCompany
     }
+
     async findAll() {
         const companies = await this.prisma.company.findMany()
         return companies

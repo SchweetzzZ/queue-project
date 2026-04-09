@@ -20,21 +20,21 @@ export class CompanyController {
     @Roles(Role.SUPER_ADMIN, Role.ADMIN)
     @Permissions(PERMISSIONS.company.CREATE)
     async create(@ZodBody(companySchema) data: CompanyDto, @CurrentUser() user: any) {
-        return this.companyService.create(data, user)
+        return this.companyService.create(data, user.id)
     }
     @Put(":id")
     @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
     @Roles(Role.SUPER_ADMIN, Role.ADMIN)
     @Permissions(PERMISSIONS.company.UPDATE)
     async update(@ZodBody(updateCompanySchema) data: UpdateCompanyDto, @Param("id") id: string, @CurrentUser() user: any) {
-        return this.companyService.update(data, id, user)
+        return this.companyService.update(data, id, user.id)
     }
     @Delete(":id")
     @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
     @Roles(Role.SUPER_ADMIN, Role.ADMIN)
     @Permissions(PERMISSIONS.company.DELETE)
     async delete(@Param("id") id: string, @CurrentUser() user: any) {
-        return this.companyService.delete(id, user)
+        return this.companyService.delete(id, user.id)
     }
     @Get()
     async findAll() {

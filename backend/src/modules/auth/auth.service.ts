@@ -3,6 +3,8 @@ import { PrismaService } from "../../prisma/prisma.service";
 import { RegisterDto, LoginDto } from "./schemas/auth-zod"
 import * as bcrypt from "bcrypt"
 import { JwtService } from '@nestjs/jwt';
+import { PERMISSIONS } from '../common/enums/permissions.enums';
+import { Role } from '../common/enums/roles.enums';
 
 @Injectable()
 export class AuthService {
@@ -38,10 +40,26 @@ export class AuthService {
         const payload = {
             sub: user.id,
             email: user.email,
-            role: user.role,
+            permissions: this.getPermissionsByRole(user.role)
         }
         return {
             access_token: this.jwtService.sign(payload),
         }
+    }
+    private getPermissionsByRole(role: Role): string[] {
+        const allPermissions: string[] = [
+            ...Object.values(PERMISSIONS.company)
+        ]
+        if (role === Role.SUPER_ADMIN) {
+            return allPermissions
+        }
+        if (role === Role.ADMIN) {
+            return [
+                ...Object.values(PERMISSIONS.company)
+            ]
+        }
+        return [
+            PERMISSIONS.company.READ,
+        ]
     }
 }
