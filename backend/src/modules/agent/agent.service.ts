@@ -5,12 +5,14 @@ import type { AgentDto, UpdateAgentDto } from "./schemas/agent-zod";
 @Injectable()
 export class AgentService {
     constructor(private readonly prisma: PrismaService) { }
-    async create(data: AgentDto, companyId: string, userId: string) {
+    async create(data: AgentDto, companyId: string) {
         return this.prisma.agent.create({
             data: {
-                ...data,
+                userId: data.userId,
+                role: data.role,
+                status: data.status,
+                isActive: data.isActive,
                 companyId,
-                userId,
             },
         })
     }

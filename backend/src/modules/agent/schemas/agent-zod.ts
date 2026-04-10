@@ -1,8 +1,8 @@
 import { z } from "zod"
 
 export const agentSchema = z.object({
-    companyId: z.string(),
     userId: z.string(),
+    companyId: z.string().optional(),
     role: z.enum(["ADMIN", "AGENT"]),
     status: z.enum(["ONLINE", "OFFLINE", "BUSY"]),
     isActive: z.boolean().default(true),
