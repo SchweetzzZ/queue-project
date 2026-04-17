@@ -11,26 +11,27 @@ import { Role } from "../common/enums/roles.enums";
 import { Permissions } from "../common/decorators/permissons.decorators";
 import { PERMISSIONS } from "../common/enums/permissions.enums";
 import { CurrentUser } from "../common/decorators/user.decorators";
+import { AgentGuard } from "../common/guards/agent-guard";
 
 @Controller("company")
 export class CompanyController {
     constructor(private readonly companyService: CompanyService) { }
     @Post()
-    @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
+    @UseGuards(JwtAuthGuard, AgentGuard, RolesGuard, PermissionsGuard)
     @Roles(Role.SUPER_ADMIN, Role.ADMIN)
     @Permissions(PERMISSIONS.company.CREATE)
     async create(@ZodBody(companySchema) data: CompanyDto, @CurrentUser() user: any) {
         return this.companyService.create(data, user.id)
     }
     @Put(":id")
-    @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
+    @UseGuards(JwtAuthGuard, AgentGuard, RolesGuard, PermissionsGuard)
     @Roles(Role.SUPER_ADMIN, Role.ADMIN)
     @Permissions(PERMISSIONS.company.UPDATE)
     async update(@ZodBody(updateCompanySchema) data: UpdateCompanyDto, @Param("id") id: string, @CurrentUser() user: any) {
         return this.companyService.update(data, id, user.id)
     }
     @Delete(":id")
-    @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
+    @UseGuards(JwtAuthGuard, AgentGuard, RolesGuard, PermissionsGuard)
     @Roles(Role.SUPER_ADMIN, Role.ADMIN)
     @Permissions(PERMISSIONS.company.DELETE)
     async delete(@Param("id") id: string, @CurrentUser() user: any) {

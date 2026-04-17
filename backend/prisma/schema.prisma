@@ -28,6 +28,13 @@ enum Role {
   SUPER_ADMIN
   USER
 }
+enum QueueEntryStatus {
+  WAITING
+  MATCHED
+  IN_PROGRESS
+  DONE
+  CANCELED
+}
 model User {
   id String @id @default(uuid())
   name String
@@ -49,7 +56,9 @@ model Company {
   updatedAt DateTime @updatedAt
   settings CompanySettings?
   agents Agent[]
-  
+  customers Customer[]
+  queues Queue[]
+  entries QueueEntry[]
 }
 model CompanySettings {
   id String @id @default(uuid())
@@ -74,6 +83,51 @@ model Agent {
 
   company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entries QueueEntry[]
+
   @@unique([companyId, userId])
   @@unique([companyId, id])
+}
+model Customer {
+  id String @id @default(uuid())
+  name String
+  email String @unique
+  phone String
+  companyId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  entries QueueEntry[]
+  @@unique([companyId, id])
+}
+model Queue {
+  id String @id @default(uuid())
+  name String
+  companyId String
+  createdAt DateTime @default(now())
+  updateAt DateTime @updatedAt
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  entries QueueEntry[]
+  @@unique([companyId, id])
+}
+model QueueEntry {
+  id String @id @default(uuid())
+  customerId String
+  queueId String
+  companyId String
+  agentId String?
+
+  status QueueEntryStatus @default(WAITING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  queue Queue @relation(fields: [queueId], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  agent Agent? @relation(fields: [agentId], references: [id])
+
+  @@index([companyId, status])
+  @@index([queueId])
+  @@index([agentId])
 }

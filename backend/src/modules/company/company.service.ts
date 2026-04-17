@@ -56,15 +56,12 @@ export class CompanyService {
         const verifyCompany = await this.prisma.company.findUnique({
             where: { id }
         })
-        console.log("passa aqui?", verifyCompany)
         if (!verifyCompany) {
             throw new Error("Company not found")
         }
-        console.log("passa aqui? v1.5")
         const deleteCompany = await this.prisma.company.delete({
             where: { id }
         })
-        console.log("passa aqui? v2", deleteCompany)
         return deleteCompany
     }
 

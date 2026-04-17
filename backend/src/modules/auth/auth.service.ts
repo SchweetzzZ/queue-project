@@ -48,19 +48,12 @@ export class AuthService {
         }
     }
     private getPermissionsByRole(role: Role): string[] {
-        const allPermissions: string[] = [
-            ...Object.values(PERMISSIONS.company)
-        ]
         if (role === Role.SUPER_ADMIN) {
-            return allPermissions
+            return [...Object.values(PERMISSIONS.company)]
         }
-        if (role === Role.ADMIN) {
-            return [
-                ...Object.values(PERMISSIONS.company)
-            ]
-        }
-        return [
-            PERMISSIONS.company.READ,
-        ]
+        // Usuários comuns começam apenas com permissão de leitura global
+        // As outras permissões serão injetadas pelo AgentGuard conforme o papel na empresa
+        return [PERMISSIONS.company.READ]
     }
+
 }
