@@ -15,7 +15,7 @@ export class CompanySettingController {
     @Put(":companyId")
     @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
     @Roles(Role.SUPER_ADMIN)
-    @Permissions(PERMISSIONS.company.UPDATE)
+    @Permissions(PERMISSIONS.companySetting.UPDATE)
     async update(@Body() data: UpdateCompanySettingDto, @Param("companyId") companyId: string) {
         return this.companySettingService.update(data, companyId)
     }

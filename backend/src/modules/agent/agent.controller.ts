@@ -19,6 +19,7 @@ export class AgentController {
     @Post()
     @UseGuards(JwtAuthGuard, AgentGuard, RolesGuard, PermissionsGuard)
     @Roles(Role.SUPER_ADMIN, Role.ADMIN)
+    @Permissions(PERMISSIONS.agent.CREATE)
     async create(@ZodBody(agentSchema) dto: AgentDto, @CurrentUser() user: any) {
         const companyId = dto.companyId || user.agent?.companyId
 

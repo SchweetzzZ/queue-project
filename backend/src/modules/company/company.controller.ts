@@ -38,10 +38,14 @@ export class CompanyController {
         return this.companyService.delete(id, user.id)
     }
     @Get()
+    @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
+    @Permissions(PERMISSIONS.company.READ)
     async findAll() {
         return this.companyService.findAll()
     }
     @Get(":id")
+    @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
+    @Permissions(PERMISSIONS.company.READ)
     async findById(@Param("id") id: string) {
         return this.companyService.findById(id)
     }

@@ -1,28 +1,53 @@
-import { Controller, Post, Body, Param, Delete, Get, Req, Put } from "@nestjs/common";
+import { Controller, Post, Body, Param, Delete, Get, Put, UseGuards } from "@nestjs/common";
 import { QueueService } from "./queue.service";
 import type { QueueCreateDto, QueueUpdateDto } from "./schemas/queue-zod"
 import { CurrentUser } from "../common/decorators/user.decorators";
+import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
+import { RolesGuard } from "../common/guards/roles.guard";
+import { PermissionsGuard } from "../common/guards/permissions.guard";
+import { Roles } from "../common/decorators/roles.decorators";
+import { Permissions } from "../common/decorators/permissons.decorators";
+import { Role } from "../common/enums/roles.enums";
+import { PERMISSIONS } from "../common/enums/permissions.enums";
 
 @Controller("queue")
 export class QueueController {
     constructor(private readonly queueService: QueueService) { }
+
     @Post()
+    @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
+    @Roles(Role.SUPER_ADMIN, Role.ADMIN)
+    @Permissions(PERMISSIONS.queue.CREATE)
     async create(@Body() data: QueueCreateDto, @CurrentUser() user: any) {
         return this.queueService.create(data, user.companyId)
     }
+
     @Put(":id")
+    @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
+    @Roles(Role.SUPER_ADMIN, Role.ADMIN)
+    @Permissions(PERMISSIONS.queue.UPDATE)
     async update(@Body() data: QueueUpdateDto, @Param("id") id: string, @CurrentUser() user: any) {
         return this.queueService.update(data, id, user.companyId)
     }
+
     @Delete(":id")
+    @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
+    @Roles(Role.SUPER_ADMIN, Role.ADMIN)
+    @Permissions(PERMISSIONS.queue.DELETE)
     async delete(@Param("id") id: string, @CurrentUser() user: any) {
         return this.queueService.delete(id, user.companyId)
     }
+
     @Get(":id")
+    @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
+    @Permissions(PERMISSIONS.queue.READ)
     async findOne(@Param("id") id: string, @CurrentUser() user: any) {
         return this.queueService.findOne(id, user.companyId)
     }
+
     @Get()
+    @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
+    @Permissions(PERMISSIONS.queue.READ)
     async findAll(@CurrentUser() user: any) {
         return this.queueService.findAll(user.companyId)
     }

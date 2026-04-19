@@ -21,26 +21,33 @@ export class CustomersController {
     @Post()
     @UseGuards(JwtAuthGuard, AgentGuard, RolesGuard, PermissionsGuard)
     @Roles(Role.SUPER_ADMIN, Role.ADMIN)
+    @Permissions(PERMISSIONS.customer.CREATE)
     async create(@ZodBody(customerCreateSchema) body: CustomerCreateDto, @CurrentUser() user: any) {
         return this.customersService.create(body, user.id)
     }
     @Put(":id")
     @UseGuards(JwtAuthGuard, AgentGuard, RolesGuard, PermissionsGuard)
     @Roles(Role.SUPER_ADMIN, Role.ADMIN)
+    @Permissions(PERMISSIONS.customer.UPDATE)
     async update(@ZodBody(updateCustomerSchema) body: UpdateCustomerDto, @Param("id") id: string, @CurrentUser() user: any) {
         return this.customersService.update(body, id, user.id)
     }
     @Delete(":id")
     @UseGuards(JwtAuthGuard, AgentGuard, RolesGuard, PermissionsGuard)
     @Roles(Role.SUPER_ADMIN, Role.ADMIN)
+    @Permissions(PERMISSIONS.customer.DELETE)
     async delete(@Param("id") id: string, @CurrentUser() user: any) {
         return this.customersService.delete(id, user.id)
     }
     @Get()
+    @UseGuards(JwtAuthGuard, AgentGuard, RolesGuard, PermissionsGuard)
+    @Permissions(PERMISSIONS.customer.READ)
     async findAll(@CurrentUser() user: any) {
         return this.customersService.findAll(user.id)
     }
     @Get(":id")
+    @UseGuards(JwtAuthGuard, AgentGuard, RolesGuard, PermissionsGuard)
+    @Permissions(PERMISSIONS.customer.READ)
     async findById(@Param("id") id: string, @CurrentUser() user: any) {
         return this.customersService.findOne(id, user.id)
     }
