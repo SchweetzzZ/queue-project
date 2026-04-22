@@ -3,9 +3,10 @@ import { QueueEntryService } from "./queueEntry.service";
 import { QueueEntryController } from "./queueEntry.controller";
 import { PrismaModule } from "src/prisma/prisma.module";
 import { RedisModule } from "../redis/redis.module";
+import { ChatModule } from "../chat/chat.module";
 
 @Module({
-    imports: [PrismaModule, RedisModule],
+    imports: [PrismaModule, RedisModule, ChatModule],
     controllers: [QueueEntryController],
     providers: [QueueEntryService],
     exports: [QueueEntryService],

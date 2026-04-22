@@ -2,10 +2,14 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import type { QueueEntryCreateDto, QueueEntryUpdateDto } from "./schemas/queueEntry-zod";
 import { RedisService } from "../redis/redis.service";
+import { ChatService } from "../chat/chat.service";
 
 @Injectable()
 export class QueueEntryService {
-    constructor(private readonly prisma: PrismaService, private readonly redis: RedisService) { }
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly redis: RedisService,
+        private readonly chatService: ChatService) { }
 
     async create(data: QueueEntryCreateDto, companyId: string) {
         const queueEntry = await this.prisma.queueEntry.create({
@@ -28,6 +32,12 @@ export class QueueEntryService {
                     status: "IN_PROGRESS",
                     agentId
                 }
+            })
+            await this.chatService.createChat({
+                queueEntryId: queue.id,
+                companyId,
+                agentId,
+                customerId: queue.customerId
             })
             return queue
         }
