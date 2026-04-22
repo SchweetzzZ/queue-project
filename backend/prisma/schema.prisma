@@ -32,8 +32,12 @@ enum QueueEntryStatus {
   WAITING
   MATCHED
   IN_PROGRESS
-  DONE
+  COMPLETED
   CANCELED
+}
+enum MessageSenderType{
+  AGENT
+  CUSTOMER
 }
 model User {
   id String @id @default(uuid())
@@ -45,6 +49,7 @@ model User {
   phone String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
   agents Agent[]    
 }
 model Company {
@@ -52,20 +57,26 @@ model Company {
   name String @unique
   plan Plan @default(FREE)
   isActive Boolean @default(true)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
   settings CompanySettings?
   agents Agent[]
   customers Customer[]
   queues Queue[]
   entries QueueEntry[]
+  chats Chat[]
+  messages Message[]
 }
 model CompanySettings {
   id String @id @default(uuid())
-  companyId String @unique
   customerLabel String
   agentLabel String
   queueLabel String
+
+  companyId String @unique
+
   company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -84,6 +95,7 @@ model Agent {
   company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   entries QueueEntry[]
+  chats Chat[]
 
   @@unique([companyId, userId])
   @@unique([companyId, id])
@@ -93,25 +105,31 @@ model Customer {
   name String
   email String @unique
   phone String
+
   companyId String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
   company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
   entries QueueEntry[]
+  chats Chat[]
   @@unique([companyId, id])
 }
 model Queue {
   id String @id @default(uuid())
   name String
+
   companyId String
   createdAt DateTime @default(now())
   updateAt DateTime @updatedAt
+
   company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
   entries QueueEntry[]
   @@unique([companyId, id])
 }
 model QueueEntry {
   id String @id @default(uuid())
+
   customerId String
   queueId String
   companyId String
@@ -122,6 +140,8 @@ model QueueEntry {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  chats Chat[]
+
   queue Queue @relation(fields: [queueId], references: [id], onDelete: Cascade)
   company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
   customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
@@ -130,4 +150,49 @@ model QueueEntry {
   @@index([companyId, status])
   @@index([queueId])
   @@index([agentId])
+}
+model Chat {
+  id String @id @default(uuid())
+
+  companyId String
+  queueEntryId String @unique
+  agentId String
+  customerId String
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // relations
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  queueEntry QueueEntry @relation(fields: [queueEntryId], references: [id], onDelete: Cascade)
+  agent Agent @relation(fields: [agentId], references: [id])
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  messages Message[]
+
+  @@index([companyId])
+  @@index([agentId])
+  @@index([customerId])
+}
+model Message {
+  id String @id @default(uuid())
+
+  companyId String
+  chatId String
+
+  senderType MessageSenderType
+  senderId   String
+
+  content String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([chatId])
+  @@index([companyId])
 }

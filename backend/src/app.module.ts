@@ -6,6 +6,9 @@ import { CompanyModule } from './modules/company/company.module';
 import { ConfigModule } from '@nestjs/config';
 import { CompanySettingModule } from './modules/companySetting/companySett.module';
 import { AgentModule } from './modules/agent/agent.module';
+import { QueueModule } from './modules/queue/queue.module';
+import { CustomersModule } from './modules/customers/customers.module';
+import { QueueEntryModule } from './modules/queueEntry/queueEntry.module';
 
 @Module({
   imports: [
@@ -14,6 +17,9 @@ import { AgentModule } from './modules/agent/agent.module';
     CompanyModule,
     CompanySettingModule,
     AgentModule,
+    QueueModule,
+    CustomersModule,
+    QueueEntryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
