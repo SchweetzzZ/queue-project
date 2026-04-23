@@ -55,5 +55,4 @@ export class AuthService {
         // As outras permissões serão injetadas pelo AgentGuard conforme o papel na empresa
         return [PERMISSIONS.company.READ]
     }
-
 }

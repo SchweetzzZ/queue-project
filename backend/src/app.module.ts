@@ -9,6 +9,7 @@ import { AgentModule } from './modules/agent/agent.module';
 import { QueueModule } from './modules/queue/queue.module';
 import { CustomersModule } from './modules/customers/customers.module';
 import { QueueEntryModule } from './modules/queueEntry/queueEntry.module';
+import { ChatModule } from './modules/chat/chat.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { QueueEntryModule } from './modules/queueEntry/queueEntry.module';
     QueueModule,
     CustomersModule,
     QueueEntryModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],
