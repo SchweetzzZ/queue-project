@@ -3,23 +3,41 @@ import { PrismaService } from "src/prisma/prisma.service";
 import type { QueueEntryCreateDto, QueueEntryUpdateDto } from "./schemas/queueEntry-zod";
 import { RedisService } from "../redis/redis.service";
 import { ChatService } from "../chat/chat.service";
+import { ChatGateway } from "../chat/chat.gateway";
 
 @Injectable()
 export class QueueEntryService {
     constructor(
         private readonly prisma: PrismaService,
         private readonly redis: RedisService,
-        private readonly chatService: ChatService) { }
+        private readonly chatService: ChatService,
+        private readonly chatGateway: ChatGateway,
+    ) { }
 
     async create(data: QueueEntryCreateDto, companyId: string) {
+        const customer = await this.prisma.customer.upsert({
+            where: { email: data.email },
+            update: {
+                name: data.name,
+                phone: data.phone,
+            },
+            create: {
+                name: data.name,
+                email: data.email,
+                phone: data.phone,
+                companyId,
+            }
+        })
         const queueEntry = await this.prisma.queueEntry.create({
             data: {
-                ...data,
+                queueId: data.queueId,
+                customerId: customer.id,
                 companyId,
-                status: "WAITING",
+                status: "WAITING"
             }
         })
         await this.redis.getClient().rpush(`queue:${queueEntry.queueId}`, queueEntry.id)
+
         return queueEntry
     }
     async callNext(queueId: string, companyId: string, agentId: string) {
@@ -33,16 +51,25 @@ export class QueueEntryService {
                     agentId
                 }
             })
-            await this.chatService.createChat({
+            const chat = await this.chatService.createChat({
                 queueEntryId: queue.id,
                 companyId,
                 agentId,
                 customerId: queue.customerId
             })
+
+            console.log(`Tentando emitir agent_called para sala user:${queue.customerId}`);
+            this.chatGateway.server.to(`user:${queue.customerId}`)
+                .emit("agent_called", {
+                    chatId: chat.id,
+                    agentId: agentId,
+                    message: "Seu atendimento vai começar!"
+                })
             return queue
         }
         catch (error) {
-            return this.callNext(queueId, companyId, agentId)
+            console.error("Erro no callNext:", error);
+            throw error;
         }
     }
     async completeEntry(queueEntryId: string, companyId: string) {

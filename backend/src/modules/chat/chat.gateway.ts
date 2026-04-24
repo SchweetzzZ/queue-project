@@ -62,4 +62,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
         return message
     }
+
+    //Sala pessoal
+    @SubscribeMessage("identify")
+    handleIdentify(
+        @ConnectedSocket() client: Socket,
+        @MessageBody() payload: { userId: string }
+    ) {
+        const personalRoom = `user:${payload.userId}`
+        client.join(personalRoom)
+        console.log(`Cliente ${client.id} entrou na sala pessoal ${personalRoom} criada`)
+        return { status: "Identified", room: personalRoom }
+    }
+
 }

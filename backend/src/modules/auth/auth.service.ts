@@ -49,7 +49,7 @@ export class AuthService {
     }
     private getPermissionsByRole(role: Role): string[] {
         if (role === Role.SUPER_ADMIN) {
-            return [...Object.values(PERMISSIONS.company)]
+            return Object.values(PERMISSIONS).flatMap(category => Object.values(category));
         }
         // Usuários comuns começam apenas com permissão de leitura global
         // As outras permissões serão injetadas pelo AgentGuard conforme o papel na empresa

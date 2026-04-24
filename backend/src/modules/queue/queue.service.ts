@@ -9,11 +9,7 @@ export class QueueService {
         const queue = await this.prisma.queue.create({
             data: {
                 name: data.name,
-                company: {
-                    connect: {
-                        id: companyId
-                    }
-                }
+                company: { connect: { id: companyId } }
             }
         })
         return queue

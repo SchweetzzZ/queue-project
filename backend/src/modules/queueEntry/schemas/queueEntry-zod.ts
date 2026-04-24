@@ -1,10 +1,11 @@
 import { z } from "zod"
 
 export const QueueEntryCreateSchema = z.object({
-    customerId: z.string(),
     queueId: z.string(),
-    agentId: z.string().optional(),
-    status: z.enum(["WAITING", "MATCHED", "IN_PROGRESS", "COMPLETED", "CANCELED"]),
+    name: z.string(),
+    email: z.string().email("email invalido"),
+    phone: z.string().min(8, "telefone invalido"),
+    companyId: z.string().uuid().optional(),
 })
 
 export type QueueEntryCreateDto = z.infer<typeof QueueEntryCreateSchema>

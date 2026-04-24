@@ -1,4 +1,4 @@
-import { Controller, Body, Put, Post, Req, Param, UseGuards, Delete, Get, Patch } from "@nestjs/common";
+import { Controller, Body, Put, Post, Req, Param, UseGuards, Delete, Get, Patch, UnauthorizedException } from "@nestjs/common";
 import { QueueEntryService } from "./queueEntry.service";
 import { QueueEntryCreateSchema, QueueEntryUpdateSchema } from "./schemas/queueEntry-zod";
 import type { QueueEntryCreateDto, QueueEntryUpdateDto } from "./schemas/queueEntry-zod";
@@ -10,7 +10,6 @@ import { Roles } from "../common/decorators/roles.decorators";
 import { Role } from "../common/enums/roles.enums";
 import { Permissions } from "../common/decorators/permissons.decorators";
 import { PERMISSIONS } from "../common/enums/permissions.enums";
-
 import { CurrentUser } from "../common/decorators/user.decorators";
 import { AgentGuard } from "../common/guards/agent-guard";
 
@@ -21,16 +20,21 @@ export class QueueEntryController {
     ) { }
 
     @Post()
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, AgentGuard, RolesGuard, PermissionsGuard)
+    @Roles(Role.SUPER_ADMIN, Role.ADMIN)
+    @Permissions(PERMISSIONS.queueEntry.CREATE)
     async create(@ZodBody(QueueEntryCreateSchema) data: QueueEntryCreateDto, @CurrentUser() user: any) {
-        return this.queueEntryService.create(data, user.companyId)
+        const targetCompanyId = (user.role === Role.SUPER_ADMIN && data.companyId)
+            ? data.companyId : user.companyId
+        if (!targetCompanyId) throw new UnauthorizedException('Empresa não encontrada')
+        return this.queueEntryService.create(data, targetCompanyId)
     }
     @Post(":queueId/call-next")
     @UseGuards(JwtAuthGuard, AgentGuard, RolesGuard, PermissionsGuard)
     @Roles(Role.SUPER_ADMIN, Role.ADMIN)
     @Permissions(PERMISSIONS.queueEntry.UPDATE)
     async callNext(@Param("queueId") queueId: string, @CurrentUser() user: any) {
-        return this.queueEntryService.callNext(queueId, user.companyId, user.id)
+        return this.queueEntryService.callNext(queueId, user.companyId, user.agentId)
     }
     @Patch(":queueEntryId/complete")
     @UseGuards(JwtAuthGuard, AgentGuard, RolesGuard, PermissionsGuard)
