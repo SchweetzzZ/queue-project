@@ -12,10 +12,14 @@ export class RolesGuard implements CanActivate {
             ROLES_KEY,
             [context.getHandler(), context.getClass()],
         )
-        if (!requiredRoles) return true
         const { user } = context.switchToHttp().getRequest()
 
         if (!user) throw new UnauthorizedException()
+
+        // Bypass para SUPER_ADMIN
+        if (user.role === Role.SUPER_ADMIN) return true
+
+        if (!requiredRoles) return true
 
         const userRole = user.role
         const agentRole = user.agent?.role

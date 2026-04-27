@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import type { QueueEntryCreateDto, QueueEntryUpdateDto } from "./schemas/queueEntry-zod";
 import { RedisService } from "../redis/redis.service";
@@ -41,6 +41,9 @@ export class QueueEntryService {
         return queueEntry
     }
     async callNext(queueId: string, companyId: string, agentId: string) {
+        if (!agentId) {
+            throw new BadRequestException("Seu usuário não possui um registro de Agente para esta empresa. Use o Header 'x-company-id' ou vincule-se à empresa.")
+        }
         const entryId = await this.redis.getClient().lpop(`queue:${queueId}`)
         if (!entryId) return null
         try {

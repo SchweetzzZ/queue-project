@@ -24,10 +24,8 @@ export class QueueEntryController {
     @Roles(Role.SUPER_ADMIN, Role.ADMIN)
     @Permissions(PERMISSIONS.queueEntry.CREATE)
     async create(@ZodBody(QueueEntryCreateSchema) data: QueueEntryCreateDto, @CurrentUser() user: any) {
-        const targetCompanyId = (user.role === Role.SUPER_ADMIN && data.companyId)
-            ? data.companyId : user.companyId
-        if (!targetCompanyId) throw new UnauthorizedException('Empresa não encontrada')
-        return this.queueEntryService.create(data, targetCompanyId)
+        if (!user.companyId) throw new UnauthorizedException('Empresa não encontrada')
+        return this.queueEntryService.create(data, user.companyId)
     }
     @Post(":queueId/call-next")
     @UseGuards(JwtAuthGuard, AgentGuard, RolesGuard, PermissionsGuard)
@@ -44,7 +42,7 @@ export class QueueEntryController {
         return this.queueEntryService.completeEntry(queueEntryId, user.companyId)
     }
     @Delete(":queueEntryId/cancel")
-    @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
+    @UseGuards(JwtAuthGuard, AgentGuard, RolesGuard, PermissionsGuard)
     @Roles(Role.SUPER_ADMIN, Role.ADMIN)
     @Permissions(PERMISSIONS.queueEntry.DELETE)
     async cancelEntry(@Param("queueEntryId") queueEntryId: string, @CurrentUser() user: any) {
@@ -57,20 +55,20 @@ export class QueueEntryController {
     }
     //Admin sincroniza Redis com banco
     @Post(":queueId/sync")
-    @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
+    @UseGuards(JwtAuthGuard, AgentGuard, RolesGuard, PermissionsGuard)
     @Roles(Role.SUPER_ADMIN)
     @Permissions(PERMISSIONS.queueEntry.UPDATE)
     async syncRedis(@Param("queueId") queueId: string, @CurrentUser() user: any) {
         return this.queueEntryService.repopulateRedis(queueId, user.companyId)
     }
     @Get()
-    @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
+    @UseGuards(JwtAuthGuard, AgentGuard, RolesGuard, PermissionsGuard)
     @Permissions(PERMISSIONS.queueEntry.READ)
     async findAll(@CurrentUser() user: any) {
         return this.queueEntryService.findAll(user.companyId)
     }
     @Get(":id")
-    @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
+    @UseGuards(JwtAuthGuard, AgentGuard, RolesGuard, PermissionsGuard)
     @Permissions(PERMISSIONS.queueEntry.READ)
     async findOne(@Param("id") id: string, @CurrentUser() user: any) {
         return this.queueEntryService.findOne(id, user.companyId)

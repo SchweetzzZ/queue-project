@@ -17,7 +17,7 @@ import { AgentGuard } from "../common/guards/agent-guard";
 export class CompanyController {
     constructor(private readonly companyService: CompanyService) { }
     @Post()
-    @UseGuards(JwtAuthGuard, AgentGuard, RolesGuard, PermissionsGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
     @Roles(Role.SUPER_ADMIN, Role.ADMIN)
     @Permissions(PERMISSIONS.company.CREATE)
     async create(@ZodBody(companySchema) data: CompanyDto, @CurrentUser() user: any) {

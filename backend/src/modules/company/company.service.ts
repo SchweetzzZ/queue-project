@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from "@nestjs/common"
+import { ConflictException, Injectable, BadRequestException } from "@nestjs/common"
 import { PrismaService } from "src/prisma/prisma.service";
 import { CompanyDto, UpdateCompanyDto } from "./schemas/company-zod";
 @Injectable()
@@ -19,14 +19,24 @@ export class CompanyService {
                             agentLabel: 'Atendente',
                             queueLabel: 'Fila',
                         }
+                    },
+                    // Criar o vínculo de agente automaticamente para quem criou a empresa
+                    agents: {
+                        create: {
+                            userId: superAdminId,
+                            role: 'ADMIN',
+                            status: 'ONLINE'
+                        }
                     }
                 },
                 include: {
-                    settings: true
+                    settings: true,
+                    agents: true
                 }
             })
             return createCompany
         } catch (error) {
+            console.error(error)
             throw new ConflictException("Company already exists")
         }
     }

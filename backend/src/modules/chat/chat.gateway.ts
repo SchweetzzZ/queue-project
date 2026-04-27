@@ -53,10 +53,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @SubscribeMessage("send_message")
     async handleSendMessage(
         @ConnectedSocket() client: Socket,
-        @MessageBody() payload: MessageSendDto & { companyId: string }
+        @MessageBody() payload: MessageSendDto
     ) {
 
-        const message = await this.chatService.sendMessage(payload, payload.companyId)
+        const message = await this.chatService.sendMessage(payload)
 
         this.server.to(`chat:${payload.chatId}`).emit("new_message", message)
 
@@ -67,11 +67,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @SubscribeMessage("identify")
     handleIdentify(
         @ConnectedSocket() client: Socket,
-        @MessageBody() payload: { userId: string }
+        @MessageBody() data: { userId: string }
     ) {
-        const personalRoom = `user:${payload.userId}`
+        const personalRoom = `user:${data.userId}`
         client.join(personalRoom)
-        console.log(`Cliente ${client.id} entrou na sala pessoal ${personalRoom} criada`)
+        console.log(`Cliente ${client.id} entrou na sala pessoal ${personalRoom}`)
         return { status: "Identified", room: personalRoom }
     }
 

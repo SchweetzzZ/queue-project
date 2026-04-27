@@ -10,20 +10,19 @@ import { Permissions } from "../common/decorators/permissons.decorators";
 import { Role } from "../common/enums/roles.enums";
 import { PERMISSIONS } from "../common/enums/permissions.enums";
 import { ZodBody } from "../common/decorators/zod-decorator";
+import { AgentGuard } from "../common/guards/agent-guard";
 
 @Controller("queue")
 export class QueueController {
     constructor(private readonly queueService: QueueService) { }
 
     @Post()
-    @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
+    @UseGuards(JwtAuthGuard, AgentGuard, RolesGuard, PermissionsGuard)
     @Roles(Role.SUPER_ADMIN, Role.ADMIN)
     @Permissions(PERMISSIONS.queue.CREATE)
     async create(@ZodBody(queueCreateSchema) data: QueueCreateDto, @CurrentUser() user: any) {
-        const targetCompanyId = (user.role === Role.SUPER_ADMIN && data.companyId)
-            ? data.companyId : user.companyId
-        if (!targetCompanyId) throw new UnauthorizedException('Empresa não encontrada')
-        return this.queueService.create(data, targetCompanyId)
+        if (!user.companyId) throw new UnauthorizedException('Empresa não encontrada')
+        return this.queueService.create(data, user.companyId)
     }
 
     @Put(":id")
@@ -35,7 +34,7 @@ export class QueueController {
     }
 
     @Delete(":id")
-    @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
+    @UseGuards(JwtAuthGuard, AgentGuard, RolesGuard, PermissionsGuard)
     @Roles(Role.SUPER_ADMIN, Role.ADMIN)
     @Permissions(PERMISSIONS.queue.DELETE)
     async delete(@Param("id") id: string, @CurrentUser() user: any) {
@@ -43,14 +42,14 @@ export class QueueController {
     }
 
     @Get(":id")
-    @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
+    @UseGuards(JwtAuthGuard, AgentGuard, RolesGuard, PermissionsGuard)
     @Permissions(PERMISSIONS.queue.READ)
     async findOne(@Param("id") id: string, @CurrentUser() user: any) {
         return this.queueService.findOne(id, user.companyId)
     }
 
     @Get()
-    @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
+    @UseGuards(JwtAuthGuard, AgentGuard, RolesGuard, PermissionsGuard)
     @Permissions(PERMISSIONS.queue.READ)
     async findAll(@CurrentUser() user: any) {
         return this.queueService.findAll(user.companyId)

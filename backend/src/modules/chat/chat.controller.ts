@@ -13,7 +13,7 @@ export class ChatController {
     @Post("send")
     @UseGuards(JwtAuthGuard)
     async sendMessage(@ZodBody(messageSendSchema) data: MessageSendDto, @CurrentUser() user: any) {
-        return this.chatService.sendMessage(data, user.companyId)
+        return this.chatService.sendMessage(data)
     }
     @Get(":chatId/historical")
     @UseGuards(JwtAuthGuard)
