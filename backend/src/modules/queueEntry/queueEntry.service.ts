@@ -12,7 +12,7 @@ export class QueueEntryService {
         private readonly redis: RedisService,
         private readonly chatService: ChatService,
         private readonly chatGateway: ChatGateway,
-    ) { }
+    ) {  }
 
     async create(data: QueueEntryCreateDto, companyId: string) {
         const customer = await this.prisma.customer.upsert({
