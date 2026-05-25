@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import type { AgentDto, UpdateAgentDto } from "./schemas/agent-zod";
 
@@ -58,9 +58,9 @@ export class AgentService {
             }
         })
         if (!findAgent) {
-            throw new Error("Agent not found")
+            throw new NotFoundException("Agent not found")
         }
         return findAgent
     }
 
-}
+}

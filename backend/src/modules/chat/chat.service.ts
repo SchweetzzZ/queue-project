@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common"
+import { Injectable, NotFoundException } from "@nestjs/common"
 import { PrismaService } from "src/prisma/prisma.service"
 import type { ChatCreateDto, MessageSendDto } from "./schemas/chat-zod"
 
@@ -19,7 +19,7 @@ export class ChatService {
         });
 
         if (!chat) {
-            throw new Error("Chat não encontrado");
+            throw new NotFoundException("Chat não encontrado");
         }
 
         const createMessage = await this.prisma.message.create({

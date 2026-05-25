@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, BadRequestException } from "@nestjs/common"
+import { ConflictException, Injectable, BadRequestException, NotFoundException } from "@nestjs/common"
 import { PrismaService } from "src/prisma/prisma.service";
 import { CompanyDto, UpdateCompanyDto } from "./schemas/company-zod";
 @Injectable()
@@ -46,7 +46,7 @@ export class CompanyService {
                 where: { id }
             })
             if (!verifyCompany) {
-                throw new Error("Company not found")
+                throw new NotFoundException("Company not found")
             }
             const updateCompany = await this.prisma.company.update({
                 where: { id },
@@ -58,6 +58,7 @@ export class CompanyService {
             })
             return updateCompany
         } catch (error) {
+            if (error instanceof NotFoundException) throw error;
             throw new ConflictException("Company already exists")
         }
     }
@@ -67,7 +68,7 @@ export class CompanyService {
             where: { id }
         })
         if (!verifyCompany) {
-            throw new Error("Company not found")
+            throw new NotFoundException("Company not found")
         }
         const deleteCompany = await this.prisma.company.delete({
             where: { id }

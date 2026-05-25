@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from "../../prisma/prisma.service";
 import { RegisterDto, LoginDto } from "./schemas/auth-zod"
 import * as bcrypt from "bcrypt"
@@ -16,11 +16,11 @@ export class AuthService {
             },
         })
         if (!user) {
-            throw new Error("User not found")
+            throw new UnauthorizedException("E-mail ou senha inválidos")
         }
         const isValid = await bcrypt.compare(data.password, user.password)
         if (!isValid) {
-            throw new Error("Invalid password")
+            throw new UnauthorizedException("E-mail ou senha inválidos")
         }
         return user
     }
@@ -56,3 +56,4 @@ export class AuthService {
         return [PERMISSIONS.company.READ]
     }
 }
+

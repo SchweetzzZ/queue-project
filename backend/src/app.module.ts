@@ -10,6 +10,7 @@ import { QueueModule } from './modules/queue/queue.module';
 import { CustomersModule } from './modules/customers/customers.module';
 import { QueueEntryModule } from './modules/queueEntry/queueEntry.module';
 import { ChatModule } from './modules/chat/chat.module';
+import { HealthModule } from './modules/health/health.module';
 
 @Module({
   imports: [
@@ -22,8 +23,10 @@ import { ChatModule } from './modules/chat/chat.module';
     CustomersModule,
     QueueEntryModule,
     ChatModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule { }
+

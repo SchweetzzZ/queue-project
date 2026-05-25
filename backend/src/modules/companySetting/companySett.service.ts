@@ -1,4 +1,4 @@
-import { Injectable, ConflictException } from "@nestjs/common";
+import { Injectable, ConflictException, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { UpdateCompanySettingDto } from "./schemas/companySett-zod";
 
@@ -11,7 +11,7 @@ export class CompanySettingService {
                 where: { id: companyId }
             })
             if (!verifyCompany) {
-                throw new Error("Company not found")
+                throw new NotFoundException("Company not found")
             }
             const updateCompanySetting = await this.prisma.companySettings.update({
                 where: { companyId },
@@ -23,6 +23,7 @@ export class CompanySettingService {
             })
             return updateCompanySetting
         } catch (error) {
+            if (error instanceof NotFoundException) throw error;
             throw new ConflictException("Company setting already exists")
         }
     }
@@ -31,11 +32,11 @@ export class CompanySettingService {
             where: { id: companyId }
         })
         if (!verifyCompany) {
-            throw new Error("Company not found")
+            throw new NotFoundException("Company not found")
         }
         const companySetting = await this.prisma.companySettings.findUnique({
             where: { companyId }
         })
         return companySetting
     }
-}
+}
